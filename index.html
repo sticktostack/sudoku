@@ -2,102 +2,516 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sudoku</title>
   <style>
+    * {
+      box-sizing: border-box;
+    }
+    
     body {
-      font-family: Arial, sans-serif;
-      background: #8057C7; /* light rgb background */
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       display: flex;
       justify-content: center;
       align-items: flex-start;
       gap: 40px;
       margin: 0;
-      padding: 40px;
+      padding: 40px 20px;
+      min-height: 100vh;
     }
-    /* Sudoku grid */
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(9, 45px);
-      grid-template-rows: repeat(9, 45px);
-      gap: 1px;
-      background: #b92727;
-      padding: 0x;
-      border: none;
+    
+    .container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 40px;
+      max-width: 1400px;
+      width: 100%;
+      opacity: 0;
+      animation: fadeInUp 0.8s ease forwards;
     }
-    .cell {
-      width: 45px;
-      height: 45px;
+    
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    /* Hintbox panel */
+    .hintbox-panel {
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      width: 400px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      max-height: 900px;
+      opacity: 0;
+      animation: slideInLeft 0.8s ease 0.2s forwards;
+    }
+    
+    @keyframes slideInLeft {
+      from {
+        opacity: 0;
+        transform: translateX(-30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+    
+    .hintbox-title {
+      font-size: 20px;
+      font-weight: 600;
+      margin: 0;
+      color: #333;
       text-align: center;
-      font-size: 18px;
-      border: none;
-      outline: none;
-      background: white;
     }
-    .cell:disabled {
-      background: #74a8d5;
-      color: black;
+    
+    .hint-content {
+      background: #f8f9fa;
+      border-radius: 12px;
+      padding: 16px;
+      font-size: 16px;
+      line-height: 1.5;
+      color: #495057;
+      border-left: 4px solid #6a11cb;
+    }
+    
+    .hint-tips {
+      margin-top: 10px;
+    }
+    
+    .hint-tip {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 12px;
+      gap: 10px;
+      opacity: 0;
+      animation: fadeIn 0.5s ease forwards;
+    }
+    
+    .hint-tip:nth-child(1) { animation-delay: 0.4s; }
+    .hint-tip:nth-child(2) { animation-delay: 0.5s; }
+    .hint-tip:nth-child(3) { animation-delay: 0.6s; }
+    .hint-tip:nth-child(4) { animation-delay: 0.7s; }
+    .hint-tip:nth-child(5) { animation-delay: 0.8s; }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    .tip-icon {
+      background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+      color: white;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       font-weight: bold;
+      flex-shrink: 0;
     }
-    .highlight {
-      background: #ebf58e !important;
-    }
-    .selected {
-      background: #b2ebb8 !important;
-    }
-    /* Right panel */
-    .sidebar {
+    
+    /* Sudoku grid */
+    .grid-container {
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 20px;
+      opacity: 0;
+      animation: scaleIn 0.8s ease 0.4s forwards;
     }
+    
+    @keyframes scaleIn {
+      from {
+        opacity: 0;
+        transform: scale(0.9);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+    
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(9, 50px);
+      grid-template-rows: repeat(9, 50px);
+      gap: 0;
+      background: #333;
+      border: 3px solid #333;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    
+    .cell {
+      width: 50px;
+      height: 50px;
+      text-align: center;
+      font-size: 20px;
+      font-weight: 500;
+      border: none;
+      outline: none;
+      background: white;
+      color: #333 !important; /* Added !important to ensure text color */
+      transition: all 0.2s ease;
+      opacity: 0;
+      animation: cellFadeIn 0.5s ease forwards;
+    }
+    
+    @keyframes cellFadeIn {
+      from { opacity: 0; transform: scale(0.8); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    
+    .cell:focus {
+      background: #e0f7fa;
+      box-shadow: inset 0 0 0 2px #4fc3f7;
+      transform: scale(1.05);
+      color: #333 !important; /* Ensure text color on focus */
+    }
+    
+    /* 3x3 block borders */
+    .cell:nth-child(3n) {
+      border-right: 2px solid #333;
+    }
+    
+    .cell:nth-child(n+19):nth-child(-n+27),
+    .cell:nth-child(n+46):nth-child(-n+54) {
+      border-bottom: 2px solid #333;
+    }
+    
+    .cell:disabled {
+      background: #f5f5f5;
+      color: #333 !important; /* Ensure text color for disabled cells */
+      font-weight: 700;
+    }
+    
+    .highlight {
+      background: #e8f5e9 !important;
+      color: #333 !important; /* Ensure text color for highlighted cells */
+    }
+    
+    .selected {
+      background: #c8e6c9 !important;
+      color: #333 !important; /* Ensure text color for selected cells */
+    }
+    
+    /* Animation class for number insertion */
+    .cell.number-inserted {
+      animation: numberPulse 0.3s ease;
+    }
+    
+    @keyframes numberPulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+    
+    /* Logic box */
+    .logic-box {
+      width: 100%;
+      max-width: 500px;
+      background: #f8f9fa;
+      border-radius: 12px;
+      padding: 16px;
+      border-left: 4px solid #f5576c;
+      font-size: 14px;
+      line-height: 1.5;
+      color: #495057;
+      display: none;
+      animation: fadeIn 0.5s ease-in-out;
+    }
+    
+    .logic-box.visible {
+      display: block;
+    }
+    
+    .logic-title {
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #333;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .logic-icon {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      color: white;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
+    
+    .logic-steps {
+      margin-top: 10px;
+    }
+    
+    .logic-step {
+      margin-bottom: 6px;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+    
+    .step-number {
+      background: #e9ecef;
+      color: #495057;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: bold;
+      flex-shrink: 0;
+    }
+    
+    /* Right panel */
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      opacity: 0;
+      animation: slideInRight 0.8s ease 0.6s forwards;
+    }
+    
+    @keyframes slideInRight {
+      from {
+        opacity: 0;
+        transform: translateX(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+    
+    .panel {
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      width: 100%;
+    }
+    
+    .panel-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin: 0 0 16px 0;
+      color: #333;
+      text-align: center;
+    }
+    
     .num-buttons {
       display: grid;
-      grid-template-columns: repeat(3, 60px);
-      gap: 10px;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
     }
+    
     .num-buttons button,
     .control-buttons button {
-      background: #c1c700;
-      color: rgb(0, 0, 0);
+      background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+      color: white;
       font-size: 18px;
-      padding: 15px;
+      font-weight: 600;
+      padding: 16px;
       border: none;
-      border-radius: 6px;
+      border-radius: 12px;
       cursor: pointer;
-      transition: background 0.3s;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(37, 117, 252, 0.3);
+      opacity: 0;
+      animation: buttonFadeIn 0.5s ease forwards;
     }
+    
+    .num-buttons button:nth-child(1) { animation-delay: 0.7s; }
+    .num-buttons button:nth-child(2) { animation-delay: 0.75s; }
+    .num-buttons button:nth-child(3) { animation-delay: 0.8s; }
+    .num-buttons button:nth-child(4) { animation-delay: 0.85s; }
+    .num-buttons button:nth-child(5) { animation-delay: 0.9s; }
+    .num-buttons button:nth-child(6) { animation-delay: 0.95s; }
+    .num-buttons button:nth-child(7) { animation-delay: 1.0s; }
+    .num-buttons button:nth-child(8) { animation-delay: 1.05s; }
+    .num-buttons button:nth-child(9) { animation-delay: 1.1s; }
+    
+    .control-buttons button:nth-child(1) { animation-delay: 1.2s; }
+    .control-buttons button:nth-child(2) { animation-delay: 1.25s; }
+    .control-buttons button:nth-child(3) { animation-delay: 1.3s; }
+    
+    @keyframes buttonFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
     .num-buttons button:hover,
     .control-buttons button:hover {
-      background: #d9ff00;
+      transform: translateY(-3px);
+      box-shadow: 0 7px 20px rgba(37, 117, 252, 0.4);
     }
+    
+    .num-buttons button:active,
+    .control-buttons button:active {
+      transform: translateY(1px);
+    }
+    
     .control-buttons {
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 12px;
+    }
+    
+    .control-buttons button {
+      background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+      box-shadow: 0 4px 15px rgba(245, 87, 108, 0.3);
+    }
+    
+    .control-buttons button:hover {
+      box-shadow: 0 7px 20px rgba(245, 87, 108, 0.4);
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 1200px) {
+      .container {
+        flex-direction: column;
+        align-items: center;
+      }
+      
+      .hintbox-panel {
+        width: 100%;
+        max-width: 500px;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      body {
+        padding: 20px;
+      }
+      
+      .grid {
+        grid-template-columns: repeat(9, 40px);
+        grid-template-rows: repeat(9, 40px);
+      }
+      
+      .cell {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+      }
+      
+      .num-buttons button,
+      .control-buttons button {
+        padding: 12px;
+        font-size: 16px;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="grid" id="sudoku-grid"></div>
-
-  <div class="sidebar">
-    <div class="num-buttons">
-      <!-- Number buttons -->
-      <button onclick="insertNumber(1)">1</button>
-      <button onclick="insertNumber(2)">2</button>
-      <button onclick="insertNumber(3)">3</button>
-      <button onclick="insertNumber(4)">4</button>
-      <button onclick="insertNumber(5)">5</button>
-      <button onclick="insertNumber(6)">6</button>
-      <button onclick="insertNumber(7)">7</button>
-      <button onclick="insertNumber(8)">8</button>
-      <button onclick="insertNumber(9)">9</button>
+  <div class="container">
+    <div class="hintbox-panel">
+      <h2 class="hintbox-title">Sudoku Tips</h2>
+      
+      <div class="hint-content">
+        <p><strong>How to Play:</strong> Fill the grid so every row, column, and 3x3 box contains the digits 1 to 9.</p>
+      </div>
+      
+      <div class="hint-tips">
+        <div class="hint-tip">
+          <div class="tip-icon">1</div>
+          <div>Start with the easiest cells - those with the fewest possible numbers.</div>
+        </div>
+        
+        <div class="hint-tip">
+          <div class="tip-icon">2</div>
+          <div>Look for "naked singles" - cells where only one number is possible.</div>
+        </div>
+        
+        <div class="hint-tip">
+          <div class="tip-icon">3</div>
+          <div>Check rows, columns, and boxes for missing numbers.</div>
+        </div>
+        
+        <div class="hint-tip">
+          <div class="tip-icon">4</div>
+          <div>Use the "Highlight" feature to see related cells when you select a cell.</div>
+        </div>
+        
+        <div class="hint-tip">
+          <div class="tip-icon">5</div>
+          <div>If you're stuck, use the "Solve" button to see the solution.</div>
+        </div>
+      </div>
     </div>
-    <div class="control-buttons">
-      <button onclick="generatePuzzle()">Generate</button>
-      <button onclick="solvePuzzle()">Solve</button>
-      <button onclick="resetGrid()">Reset</button>
+    
+    <div class="grid-container">
+      <div class="grid" id="sudoku-grid"></div>
+      
+      <div class="logic-box" id="logic-box">
+        <div class="logic-title">
+          <div class="logic-icon">i</div>
+          <span>Solving Logic</span>
+        </div>
+        <div>Used backtracking algorithm to solve the puzzle:</div>
+        <div class="logic-steps" id="logic-steps">
+          <!-- Logic steps will be inserted here -->
+        </div>
+      </div>
+    </div>
+    
+    <div class="sidebar">
+      <div class="panel">
+        <h3 class="panel-title">Number Pad</h3>
+        <div class="num-buttons">
+          <!-- Number buttons -->
+          <button onclick="insertNumber(1)">1</button>
+          <button onclick="insertNumber(2)">2</button>
+          <button onclick="insertNumber(3)">3</button>
+          <button onclick="insertNumber(4)">4</button>
+          <button onclick="insertNumber(5)">5</button>
+          <button onclick="insertNumber(6)">6</button>
+          <button onclick="insertNumber(7)">7</button>
+          <button onclick="insertNumber(8)">8</button>
+          <button onclick="insertNumber(9)">9</button>
+        </div>
+      </div>
+      
+      <div class="panel">
+        <h3 class="panel-title">Controls</h3>
+        <div class="control-buttons">
+          <button onclick="generatePuzzle()">Generate</button>
+          <button onclick="solvePuzzle()">Solve</button>
+          <button onclick="resetGrid()">Reset</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -106,7 +520,7 @@
     let puzzle = [];
     let solution = [];
     let selectedCell = null;
-
+    
     // Create grid inputs
     for (let r = 0; r < 9; r++) {
       for (let c = 0; c < 9; c++) {
@@ -122,13 +536,13 @@
         grid.appendChild(input);
       }
     }
-
+    
     function clearHighlights() {
       document.querySelectorAll(".cell").forEach(cell => {
         cell.classList.remove("highlight", "selected");
       });
     }
-
+    
     function highlightCells(row, col) {
       clearHighlights();
       for (let i = 0; i < 9; i++) {
@@ -144,7 +558,7 @@
       }
       document.getElementById(`cell-${row}-${col}`).classList.add("selected");
     }
-
+    
     function insertNumber(num) {
       if (selectedCell) {
         const {r, c} = selectedCell;
@@ -152,16 +566,26 @@
         if (!cell.disabled) {
           cell.value = num;
           puzzle[r][c] = num;
+          
+          // Add animation when number is inserted
+          cell.classList.remove('number-inserted');
+          // Trigger reflow
+          void cell.offsetWidth;
+          cell.classList.add('number-inserted');
+          
+          // Remove animation class after animation completes
+          setTimeout(() => {
+            cell.classList.remove('number-inserted');
+          }, 300);
         }
       }
     }
-
+    
     async function generatePuzzle() {
       const res = await fetch("/generate");
       const data = await res.json();
       puzzle = data.puzzle;
       solution = data.solution;
-
       for (let r = 0; r < 9; r++) {
         for (let c = 0; c < 9; c++) {
           const cell = document.getElementById(`cell-${r}-${c}`);
@@ -169,8 +593,10 @@
           cell.disabled = puzzle[r][c] !== 0;
         }
       }
+      // Hide logic box when generating new puzzle
+      document.getElementById("logic-box").classList.remove("visible");
     }
-
+    
     async function solvePuzzle() {
       const res = await fetch("/solve", {
         method: "POST",
@@ -179,14 +605,47 @@
       });
       const data = await res.json();
       const solved = data.solution;
-
       for (let r = 0; r < 9; r++) {
         for (let c = 0; c < 9; c++) {
           document.getElementById(`cell-${r}-${c}`).value = solved[r][c];
         }
       }
+      
+      // Show logic box with solving steps
+      showSolvingLogic();
     }
-
+    
+    function showSolvingLogic() {
+      const logicBox = document.getElementById("logic-box");
+      const logicSteps = document.getElementById("logic-steps");
+      
+      // Clear previous steps
+      logicSteps.innerHTML = "";
+      
+      // Create logic steps
+      const steps = [
+        "Analyzed empty cells to find the one with fewest possibilities",
+        "Applied backtracking to test possible numbers",
+        "Checked row, column, and 3x3 box for conflicts",
+        "Backtracked when no valid number was found",
+        "Repeated until all cells were filled correctly"
+      ];
+      
+      // Add steps to the logic box
+      steps.forEach((step, index) => {
+        const stepElement = document.createElement("div");
+        stepElement.className = "logic-step";
+        stepElement.innerHTML = `
+          <div class="step-number">${index + 1}</div>
+          <div>${step}</div>
+        `;
+        logicSteps.appendChild(stepElement);
+      });
+      
+      // Show the logic box with animation
+      logicBox.classList.add("visible");
+    }
+    
     function resetGrid() {
       clearHighlights();
       for (let r = 0; r < 9; r++) {
@@ -198,6 +657,9 @@
       }
       puzzle = Array.from({length: 9}, () => Array(9).fill(0));
       selectedCell = null;
+      
+      // Hide logic box when resetting
+      document.getElementById("logic-box").classList.remove("visible");
     }
   </script>
 </body>
