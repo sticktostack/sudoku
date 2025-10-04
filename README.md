@@ -43,7 +43,7 @@ pip install flask opencv-python pillow numpy pytesseract
 # Run the application
 python app.py
 
-📸 Image Upload Support
+*Image Upload Support*
 The app can process:
 
 1. Screenshots of Sudoku puzzles
