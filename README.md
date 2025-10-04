@@ -43,21 +43,19 @@ pip install flask opencv-python pillow numpy pytesseract
 # Run the application
 python app.py
 
-*Image Upload Support*
-The app can process:
+
+📸 Image Upload Support
+    This app can process:
 
 1. Screenshots of Sudoku puzzles
 2. Photos of newspaper/magazine Sudokus
 3. Camera pictures of printed Sudoku puzzles
 4. Digital Sudoku images
 
+
 🎨 Features in Detail :
-Smart Grid: Cell highlighting, input validation, visual feedback
-
-Loading Animations: Smooth processing indicators for image uploads
-
-OCR Technology: Advanced image processing for accurate digit recognition
-
-Mobile Responsive: Optimized for all screen sizes
-
-Modern UI: Beautiful gradients, animations, and intuitive controls
+> Smart Grid: Cell highlighting, input validation, visual feedback
+> Loading Animations: Smooth processing indicators for image uploads
+> OCR Technology: Advanced image processing for accurate digit recognition
+> Mobile Responsive: Optimized for all screen sizes
+> Modern UI: Beautiful gradients, animations, and intuitive controls
